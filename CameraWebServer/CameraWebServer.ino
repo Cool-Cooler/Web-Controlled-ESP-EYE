@@ -1,5 +1,4 @@
-
-#include <WiFiManager.h>//#include "WiFi.h"
+#include <WiFiManager.h>
 #include "esp_camera.h"
 #include "esp_timer.h"
 #include "img_converters.h"
@@ -11,9 +10,7 @@
 #include <StringArray.h>
 #include <SPIFFS.h>
 #include <FS.h>
-#include "BluetoothSerial.h"
 
-// Select camera model
 #define CAMERA_MODEL_ESP_EYE // Has PSRAM
 
 #include "camera_pins.h"
@@ -24,7 +21,7 @@ boolean takeNewPhoto = false;
 // Photo File Name to save in SPIFFS
 #define FILE_PHOTO "/photo.jpg"
 
-//void startCameraServer();
+
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
@@ -78,8 +75,6 @@ void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
-//  SerialBT.begin("ESP-EYE"); //Bluetooth device name
-//  Serial.println("The device started, now you can pair it with bluetooth!");
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -130,24 +125,12 @@ void setup() {
   }
 
   sensor_t * s = esp_camera_sensor_get();
-  s->set_vflip(s, 1); // flip it back
-  // initial sensors are flipped vertically and colors are a bit saturated
-  //  if (s->id.PID == OV3660_PID) {
-  ////    s->set_vflip(s, 1); // flip it back
-  //    s->set_brightness(s, 1); // up the brightness just a bit
-  //    s->set_saturation(s, -2); // lower the saturation
-  //  }
-  // drop down frame size for higher initial frame rate
-  s->set_framesize(s, FRAMESIZE_SVGA);
+  s->set_vflip(s, 1); // flip the display back
+  s->set_framesize(s, FRAMESIZE_UXGA);
 //  s->set_brightness(s, 1); // up the brightness just a bit
 //  s->set_saturation(s, 0); // lower the saturation
-//
 
-//  WiFi.begin(ssid, password);
-//  while (WiFi.status() != WL_CONNECTED) {
-//    delay(500);
-//    Serial.print(".");
-//  }
+  // Set up secure wifi
   WiFi.mode(WIFI_STA);
   WiFiManager wm;
   wm.setAPCallback(configModeCallback);
@@ -157,7 +140,11 @@ void setup() {
     ESP.restart();
     delay(1000);
   }
-  
+  Serial.print("Camera Ready! Use 'http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("' to connect");
+
+  // Set up file system
   if (!SPIFFS.begin(true)) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     ESP.restart();
@@ -166,16 +153,12 @@ void setup() {
     delay(500);
     Serial.println("SPIFFS mounted successfully");
   }
-//  Serial.println("");
-//  Serial.println("WiFi connected");
-//  startCameraServer();
-  Serial.print("Camera Ready! Use 'http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("' to connect");
+
   // Turn-off the 'brownout detector'
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
 
-   // Route for root / web page
+  // Route for root / web page
+  // Set up API calls
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/html", index_html);
   });
