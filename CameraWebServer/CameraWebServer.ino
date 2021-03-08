@@ -35,15 +35,14 @@ const char index_html[] PROGMEM = R"rawliteral(
 </head>
 <body>
   <div id="container">
-    <h2>ESP32-CAM Last Photo</h2>
-    <p>It might take more than 5 seconds to capture a photo.</p>
+    <h2>ESP32-CAM Photo</h2>
     <p>
       <button onclick="rotatePhoto();">ROTATE</button>
       <button onclick="capturePhoto()">CAPTURE PHOTO</button>
       <button onclick="location.reload();">REFRESH PAGE</button>
     </p>
   </div>
-  <div><img src="saved-photo" id="photo" width="70%"></div>
+  <div><img src="saved-photo" id="photo" width="70%" onload="refreshIt(this)"></div>
 </body>
 <script>
   var deg = 0;
@@ -51,6 +50,7 @@ const char index_html[] PROGMEM = R"rawliteral(
     var xhr = new XMLHttpRequest();
     xhr.open('GET', "/capture", true);
     xhr.send();
+    setTimeout("location.reload(true);", 3000);
   }
   function rotatePhoto() {
     var img = document.getElementById("photo");
@@ -60,6 +60,12 @@ const char index_html[] PROGMEM = R"rawliteral(
     img.style.transform = "rotate(" + deg + "deg)";
   }
   function isOdd(n) { return Math.abs(n % 2) == 1; }
+  function refreshIt(element) {
+    setTimeout(function() {
+      element.src = element.src.split('?')[0] + '?' + new Date().getTime();
+        refreshIt(element);
+  }, 2500); // refresh every 50ms
+  }
 </script>
 </html>)rawliteral";
 
