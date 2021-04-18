@@ -53,24 +53,59 @@ const char* root_ca = \
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
+  <title>Smart Fridge</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { text-align:center; }
+    body {  text-align:center; 
+            text-rendering: optimizeLegibility;
+            text-shadow: 0px 2px 2px #888;
+            }
     .vert { margin-bottom: 10%; }
     .hori{ margin-bottom: 0%; }
+    #images {white-space: nowrap;}
+    .flexbox {display:flex; 
+              flex-direction:row;
+              margin: auto;
+              }
+    figure {padding:5px; 
+            margin:1px;
+            background: #E6E2DC;
+            border-radius: 15px;
+            }
+    h1     {font-size: 70px;
+           }
+    h3     {font-size: 40px;
+           }
+    button {font-size: 30px;
+           }
+    img    {border-radius: 5px;
+           }
+    }
   </style>
 </head>
 <body>
   <div id="container">
-    <h2>ESP32-CAM Photo</h2>
+    <h1>Fridge Cam</h1>
+  </div>
+  <div class="flexbox">
+    <figure>
+      <figcaption><h3>Top Shelf</h3></figcaption>
+      <img id="photo3" src="saved-photo3" style="width:100%" alt="Top Shelf">
+    </figure>
+    <figure>
+      <figcaption><h3>Middle Shelf</h3></figcaption>
+      <img id="photo2" src="saved-photo2" style="width:100%" alt="Middle Shelf">
+    </figure>
+    <figure >
+      <figcaption><h3>Bottom Drawer</h3></figcaption>
+      <img id="photo1" src="saved-photo1" style="width:100%" alt="Bottom Drawer">
+    </figure>
+  </div> 
+  <div id="container">
     <p>
-      <button onclick="capturePhoto()">CAPTURE PHOTO</button>
-      <button onclick="location.reload();">REFRESH PAGE</button>
+      <button onclick="capturePhoto()">Test Capture</button>
     </p>
   </div>
-  <div><img id="photo1" src="saved-photo1" width="70%" /></div>
-  <div><img id="photo2" src="saved-photo2" width="70%" /></div>
-  <div><img id="photo3" src="saved-photo3" width="70%" /></div>
 </body>
 <script>
   var deg = 0;
@@ -81,7 +116,10 @@ const char index_html[] PROGMEM = R"rawliteral(
     setTimeout("location.reload(true);", 3000);
   }
 </script>
-</html>)rawliteral";
+</html>
+)rawliteral";
+
+
 
 //gets called when WiFiManager enters configuration mode
 void configModeCallback (WiFiManager *myWiFiManager) {
